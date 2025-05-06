@@ -20,6 +20,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'modeltranslation',
     'courses.apps.CoursesConfig',
     'lessons.apps.LessonsConfig',
     'quizs.apps.QuizsConfig',
