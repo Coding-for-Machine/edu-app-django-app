@@ -27,10 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'modeltranslation',
     'courses.apps.CoursesConfig',
     'lessons.apps.LessonsConfig',
     'quizs.apps.QuizsConfig',
     'results.apps.ResultsConfig',
+    # my installed apps 
 ]
 
 MIDDLEWARE = [
@@ -96,7 +98,20 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+JAZZMIN_SETTINGS = {
+    # Language switcher
+    "language_chooser": True,  # Tilni tanlash imkoniyatini yoqish
+}
+LANGUAGE_CODE = 'uz'
+
+# settings.py
+LANGUAGES = (
+    ('en', 'English'),
+    ('uz', 'Uzbek'),
+    ('ru', 'Russian'),
+)
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 
 TIME_ZONE = 'UTC'
 
