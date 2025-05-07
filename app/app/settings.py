@@ -16,7 +16,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Yoki 'cache'/'file'
+SESSION_COOKIE_SECURE = False  # Agar HTTPS ishlatmasangiz
+SESSION_COOKIE_AGE = 300  # 5 daqiqa (OTP amal qilish muddati)
+SESSION_SAVE_EVERY_REQUEST = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -29,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # my installed apps 
+    "corsheaders",
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 
@@ -63,13 +67,14 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware", # added
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS=True
 ROOT_URLCONF = 'app.urls'
 
 TEMPLATES = [
