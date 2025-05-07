@@ -31,3 +31,9 @@ class Courses(models.Model):
     image = models.ImageField(upload_to="courses/")
     def __str__(self):
         return str(self.title)
+    
+class Bob(models.Model):
+    title = models.CharField(max_length=60)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.title

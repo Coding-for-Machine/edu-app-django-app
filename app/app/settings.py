@@ -28,12 +28,37 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # my installed apps 
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+
+    # app
     'courses.apps.CoursesConfig',
     'lessons.apps.LessonsConfig',
     'quizs.apps.QuizsConfig',
     'results.apps.ResultsConfig',
-    # my installed apps 
+    "users",
+    "tasks",
 ]
+AUTH_USER_MODEL = "users.User"
+# auth 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_BLACKLIST_ENABLED': True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -100,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 JAZZMIN_SETTINGS = {
     # Language switcher
-    "language_chooser": True,  # Tilni tanlash imkoniyatini yoqish
 }
 LANGUAGE_CODE = 'uz'
 
