@@ -1,49 +1,63 @@
 from django.db import models
+from django.dispatch import receiver
+from django.utils.text import slugify
+from django.db.models.signals import pre_save
+from courses.models import Course, create_unique_slug
+from ckeditor_uploader.fields import RichTextUploadingField
 
-from courses.models import Bob
 
-# Create your models here.
-"""
-id: 1,
-      title: "Node.js ga kirish",
-      content: `
-        <h2>Node.js nima?</h2>
-        <p>Node.js - bu Chrome V8 JavaScript engine asosida qurilgan server tomonidagi platforma. U event-driven, non-blocking I/O modelidan foydalanadi, bu esa uni yengil va samarali qiladi.</p>
-        
-        <h3>Node.js ning afzalliklari:</h3>
-        <ul>
-          <li>Asynchronous va Event Driven</li>
-          <li>Juda tez</li>
-          <li>Single Threaded lekin yuqori darajada scalable</li>
-          <li>Buffersiz</li>
-          <li>Litsenziya</li>
-        </ul>
-        
-        <h3>Node.js qachon ishlatiladi?</h3>
-        <p>Node.js quyidagi hollarda ishlatiladi:</p>
-        <ul>
-          <li>I/O bound Applications</li>
-          <li>Data Streaming Applications</li>
-          <li>Data Intensive Real-time Applications (DIRT)</li>
-          <li>JSON APIs based Applications</li>
-          <li>Single Page Applications</li>
-        </ul>
-      `,
-      type: "video",
-      duration: "45 daqiqa",
-      hasTest: true,
-      hasTask: false,
-      completed: false,
-    },
-    """
-
-class Lessons(models.Model):
-    title = models.CharField(max_length=250)
-    content = models.TextField()
-    bob = models.ForeignKey(Bob, on_delete=models.CASCADE)
-    # hasTest = models.BooleanField(default=False)
-    # hasTask = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
-
+class Module(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="modules")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    order = models.PositiveIntegerField()
+    
+    class Meta:
+        ordering = ['order']
+    
     def __str__(self):
-        return self.title
+        return f"{self.course.title} - {self.title}"
+
+
+class Lesson(models.Model):
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="lessons")
+    title = models.CharField(max_length=255)
+    content = RichTextUploadingField()
+    video_url = models.URLField(null=True, blank=True)  
+    order = models.PositiveIntegerField()
+    
+    class Meta:
+        ordering = ['order']
+    
+    def __str__(self):
+        return f"{self.module.title} - {self.title}"
+    
+
+class LessonImage(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="images")
+    url = models.ImageField(upload_to="lesson_images/")
+    caption = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"Image for {self.lesson.title}"
+
+
+class LessonAttachment(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="attachments")
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to="lesson_attachments/")
+    file_type = models.CharField(max_length=50)  # Example: "PDF", "ZIP"
+    
+    def __str__(self):
+        return f"{self.title} - {self.file_type}"
+
+# segnal 
+@receiver(pre_save, sender=Module)
+def courses_pre_save(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = create_unique_slug(instance, Module, 'title')
+
+@receiver(pre_save, sender=Lesson)
+def courses_pre_save(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = create_unique_slug(instance, Lesson, 'title')

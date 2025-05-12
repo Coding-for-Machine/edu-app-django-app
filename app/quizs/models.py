@@ -1,42 +1,36 @@
 from django.db import models
-from lessons.models import Lessons
-# Create your models here.
-"""
-{
-      id: 4,
-      title: "Node.js umumiy test",
-      description: "Bu testda Node.js haqidagi umumiy bilimlaringizni tekshirasiz.",
-      questions: [
-        {
-          id: 1,
-          text: "Node.js qaysi tilda yozilgan?",
-          answers: [
-            { id: 1, text: "JavaScript" },
-            { id: 2, text: "C++" },
-            { id: 3, text: "Java" },
-            { id: 4, text: "Python" },
-          ],
-          correctAnswer: 2,
-        },
-"""
+from lessons.models import Module
 
-class Quizs(models.Model):
-    title = models.CharField(max_length=250)
+
+class Test(models.Model):
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="tests")
+    title = models.CharField(max_length=255)
     description = models.TextField()
-    lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE)
-    def __str__(self):
-        return self.title
     
-class Questions(models.Model):
+    def __str__(self):
+        return f"{self.module.title} - {self.title}"
+
+    
+
+class Question(models.Model):
+    QUESTION_TYPES = [
+        ("single-choice", "Single Choice"),
+        ("multi-choice", "Multiple Choice"),
+        ("text-input", "Text Input"),
+    ]
+    
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="questions")
     text = models.TextField()
-    quiz = models.ForeignKey(Quizs, on_delete=models.CASCADE)
-    def __str__(self):
-        return self.text[:30]
-    
-class Answers(models.Model):
-    text = models.TextField()
-    is_corract = models.BooleanField(default=False)
+    type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    correct_answer = models.JSONField()  # For single choice: "a", for multi: ["a", "c"], for text: "answer"
     
     def __str__(self):
-        return self.text
+        return f"{self.test.title} - Question {self.id}"
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="options")
+    is_corract = models.BooleanField(default=False)  # Example: "a", "b", "c", "d"
+    text = models.CharField(max_length=255)
     
+    def __str__(self):
+        return f"{self.question.id} - Option {self.text}"

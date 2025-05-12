@@ -35,11 +35,28 @@ class UserManager(BaseUserManager):
 
     
 class User(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=13, unique=True)  # '+998' bilan
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='user_phone_set',  # Yangi nom
+        related_query_name='user',
+    )
     
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='user_phone_permissions_set',  # Yangi nom
+        related_query_name='user',
+    )
     objects = UserManager()
     
     USERNAME_FIELD = 'phone_number'
