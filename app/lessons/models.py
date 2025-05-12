@@ -8,6 +8,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="modules")
+    slug = models.SlugField(blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     order = models.PositiveIntegerField()
@@ -21,6 +22,7 @@ class Module(models.Model):
 
 class Lesson(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="lessons")
+    slug = models.SlugField(blank=True)
     title = models.CharField(max_length=255)
     content = RichTextUploadingField()
     video_url = models.URLField(null=True, blank=True)  

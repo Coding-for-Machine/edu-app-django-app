@@ -67,6 +67,8 @@ api.register_controllers(NinjaJWTDefaultController)
 class CategorySchema(Schema):
     id: int
     name: str
+    slug: str
+    image: Optional[str] = None
 
 
 class InstructorSchema(Schema):
@@ -223,7 +225,15 @@ class LessonCompleteResultSchema(Schema):
 # API Endpoints
 @api.get("/categories", response=List[CategorySchema])
 def get_categories(request):
-    return Category.objects.all()
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "image": request.build_absolute_uri(c.image.url) if c.image else None,
+            "slug": c.slug,
+        }
+        for c in Category.objects.all()
+    ]
 
 
 @api.get("/courses/featured", response=List[CourseListSchema])
@@ -243,14 +253,14 @@ def get_all_courses(request, category: Optional[str] = None):
 @api.get("/courses/{course_id}", response=CourseDetailSchema)
 def get_course_details(request, course_id: int):
     course = get_object_or_404(Course, id=course_id)
-    
+    request.url
     # Get instructor data
     instructor_data = {
         "id": course.instructor.id,
         "title": course.instructor.title,
         "bio": course.instructor.bio,
-        "avatar": course.instructor.avatar.url if course.instructor.avatar else None,
-        "name": course.instructor.user.get_full_name(),
+        "avatar": request.build_absolute_uri(course.instructor.avatar.url) if course.instructor.avatar else None,
+        "name": course.instructor.user.username(),
     }
     
     # Get course modules
