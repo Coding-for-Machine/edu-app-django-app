@@ -239,7 +239,7 @@ def get_categories(request):
 @api.get("/courses/featured", response=List[CourseListSchema])
 def get_featured_courses(request):
     courses = Course.objects.filter(featured=True)
-    return _prepare_courses_list(courses)
+    return _prepare_courses_list(request, courses)
 
 
 @api.get("/courses", response=List[CourseListSchema])
@@ -247,20 +247,19 @@ def get_all_courses(request, category: Optional[str] = None):
     courses = Course.objects.all()
     if category:
         courses = courses.filter(category__name=category)
-    return _prepare_courses_list(courses)
+    return _prepare_courses_list(request, courses)
 
 
 @api.get("/courses/{course_id}", response=CourseDetailSchema)
 def get_course_details(request, course_id: int):
     course = get_object_or_404(Course, id=course_id)
-    request.url
     # Get instructor data
     instructor_data = {
         "id": course.instructor.id,
         "title": course.instructor.title,
         "bio": course.instructor.bio,
         "avatar": request.build_absolute_uri(course.instructor.avatar.url) if course.instructor.avatar else None,
-        "name": course.instructor.user.username(),
+        "name": course.instructor.user.username if course.instructor.user.username else course.instructor.user.phone_number,
     }
     
     # Get course modules
@@ -651,7 +650,7 @@ def submit_assignment(
 
 
 # Helper functions
-def _prepare_courses_list(courses):
+def _prepare_courses_list(request, courses):
     result = []
     for course in courses:
         # Get aggregated review data
@@ -664,7 +663,7 @@ def _prepare_courses_list(courses):
             "id": course.id,
             "title": course.title,
             "short_description": course.short_description,
-            "image": course.image.url,
+            "image": request.build_absolute_uri(course.image.url) if course.image else None,
             "category": course.category.name,
             "level": course.level,
             "duration": course.duration,
